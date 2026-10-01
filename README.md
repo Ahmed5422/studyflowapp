@@ -13,7 +13,6 @@
 | Package Type | Download Link | Description |
 | :--- | :--- | :--- |
 | **Windows Setup Installer** *(Recommended)* | [**Download StudyFlow-v0.1.0-Windows-Setup.exe**](https://github.com/Ahmed5422/studyflowapp/releases/download/v0.1.0/StudyFlow-v0.1.0-Windows-Setup.exe) | 1-click installer with desktop shortcut, Windows start menu integration, and native `.pdf` / `.pptx` file associations. |
-| **Windows Portable Edition** | [**Download StudyFlow-v0.1.0-Windows-Portable.zip**](https://github.com/Ahmed5422/studyflowapp/releases/download/v0.1.0/StudyFlow-v0.1.0-Windows-Portable.zip) | Standalone zero-install archive. Extract anywhere and launch immediately (no admin privileges required). |
 
 ---
 
@@ -71,8 +70,7 @@ Get-FileHash -Algorithm SHA256 .\StudyFlow-v0.1.0-Windows-Setup.exe
 
 ## 👨‍💻 Created & Developed By
 
-**Ahmed Elsersawy**  
-- GitHub: [@Ahmed5422](https://github.com/Ahmed5422)  
+**LLmDash**  
 - Main Codebase: [StudyFlow Repository](https://github.com/Ahmed5422/studyflow)  
 - Official Landing Page: [StudyFlow App Repository](https://github.com/Ahmed5422/studyflowapp)
 
