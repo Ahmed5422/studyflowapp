@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudyFlow — The AI-Powered Academic Workspace for University Students</title>
+  <meta name="description" content="StudyFlow is the local-first academic lecture viewer and study powerhouse for university students. Featuring zero-waste focus mode, AI quiz generator with deep customization, flashcard synthesis, and PowerPoint-style auto-save." />
+  <link rel="icon" type="image/png" href="assets/icon.png" />
+  
+  <!-- Tailwind CSS & Inter Font -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              900: '#1e3a8a',
+              950: '#0f172a',
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'float 6s ease-in-out infinite',
+            'float-delayed': 'float 6s ease-in-out 3s infinite',
+            'glow': 'glow 3s ease-in-out infinite alternate',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-12px)' },
+            },
+            glow: {
+              '0%': { opacity: '0.4', filter: 'blur(40px)' },
+              '100%': { opacity: '0.8', filter: 'blur(60px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Dark Cinema Background Pattern & Mesh */
+    body {
+      background-color: #07070a;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 10% 30%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 90% 70%, rgba(16, 185, 129, 0.1) 0%, transparent 40%),
+        linear-gradient(to bottom, #07070a, #0b0c10);
+      background-attachment: fixed;
+      color: #e4e4e7;
+    }
+
+    .grid-pattern {
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+
+    .glass-card {
+      background: rgba(18, 18, 26, 0.75);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(96, 165, 250, 0.35);
+      box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.2);
+    }
+
+    .glass-pill {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .glow-cyan {
+      box-shadow: 0 0 40px -10px rgba(56, 189, 248, 0.4);
+    }
+
+    /* 3D Flip Card Effect */
+    .perspective {
+      perspective: 1000px;
+    }
+    .transform-style-3d {
+      transform-style: preserve-3d;
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased relative selection:bg-blue-600 selection:text-white">
+
+  <!-- Ambient Animated Lighting -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] animate-pulse-slow"></div>
+    <div class="absolute top-[30%] -left-32 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[140px]"></div>
+    <div class="absolute top-[60%] -right-32 w-[600px] h-[600px] bg-emerald-600/10 rounded-full blur-[140px]"></div>
+    <div class="absolute inset-0 grid-pattern opacity-60"></div>
+  </div>
+
+  <!-- Header / Navigation Bar -->
+  <nav class="sticky top-0 z-50 glass-card border-b border-white/10 px-6 lg:px-12 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 p-0.5 shadow-lg shadow-blue-500/20 flex items-center justify-center">
+        <img src="assets/icon.png" alt="StudyFlow Icon" class="w-7 h-7 object-contain" />
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="font-extrabold text-lg tracking-tight text-white">StudyFlow</span>
+          <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 font-semibold">v0.1.0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-300">
+      <a href="#features" class="hover:text-white transition-colors">Features</a>
+      <a href="#quiz-customizer" class="hover:text-white transition-colors">Quiz Customizer</a>
+      <a href="#autosave" class="hover:text-white transition-colors">PowerPoint AutoSave</a>
+      <a href="#demo" class="hover:text-white transition-colors">Interactive Demo</a>
+      <a href="#download" class="hover:text-white transition-colors">Download</a>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <a href="https://github.com/Ahmed5422/studyflow" target="_blank" class="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 border border-white/5 transition-colors" title="View Source on GitHub">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+      </a>
+      <a href="#download" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-all shadow-lg shadow-blue-600/25 flex items-center gap-2">
+        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
+        <span>Download .EXE</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="relative z-10 pt-16 pb-20 px-6 lg:px-12 max-w-7xl mx-auto text-center flex flex-col items-center">
+    
+    <!-- Top Announcement Badge -->
+    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-pill text-xs text-blue-300 border border-blue-400/25 mb-8 animate-float">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span class="font-semibold text-white">StudyFlow v0.1.0 Windows Release</span>
+      <span class="text-zinc-500">•</span>
+      <span class="text-zinc-300">Deep Quiz Customization & Realtime AutoSave</span>
+    </div>
+
+    <!-- Main Title -->
+    <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-5xl leading-[1.1] mb-6">
+      Transform Lecture Slides into 
+      <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400">Academic Superpowers</span>.
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="text-base sm:text-xl text-zinc-400 max-w-3xl leading-relaxed mb-10 font-normal">
+      The local-first PDF & PowerPoint workspace engineered for university students. Experience zero-waste focus mode, NotebookLM-grade recall drills, unlimited AI question customization, and 100% offline privacy.
+    </p>
+
+    <!-- CTAs -->
+    <div id="download" class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md mb-8">
+      <a href="https://github.com/Ahmed5422/studyflowapp/releases/download/v0.1.0/StudyFlow-v0.1.0-Windows-Setup.exe" class="w-full sm:w-auto px-7 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm transition-all shadow-xl shadow-blue-500/25 flex items-center justify-center gap-3 group border border-blue-400/40">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
+        <div class="text-left">
+          <div class="text-[10px] text-blue-200 uppercase font-mono font-medium leading-none mb-1">Direct Windows Setup</div>
+          <div class="text-sm font-extrabold leading-none">Download StudyFlow (.exe)</div>
+        </div>
+        <svg class="w-4 h-4 ml-1 group-hover:translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+      </a>
+
+      <a href="https://github.com/Ahmed5422/studyflowapp/releases/download/v0.1.0/StudyFlow-v0.1.0-Windows-Portable.zip" class="w-full sm:w-auto px-6 py-4 rounded-2xl glass-card hover:bg-white/10 text-zinc-200 font-semibold text-sm transition-all flex items-center justify-center gap-3 border border-white/10">
+        <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+        <span>Portable ZIP (No Admin)</span>
+      </a>
+    </div>
+
+    <!-- Metadata pill -->
+    <div class="flex flex-wrap items-center justify-center gap-4 text-xs text-zinc-400 font-mono">
+      <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Windows 10 & 11 (64-bit)</span>
+      <span>•</span>
+      <span>Setup File: 161 MB</span>
+      <span>•</span>
+      <span>SHA256 Verified Clean</span>
+      <span>•</span>
+      <span>100% Free & Open Source</span>
+    </div>
+
+    <!-- Hero Mockup Display with Glow -->
+    <div class="relative w-full max-w-5xl mt-14 rounded-3xl p-1.5 bg-gradient-to-b from-white/20 via-white/5 to-transparent shadow-2xl glow-cyan">
+      <div class="rounded-[22px] overflow-hidden bg-zinc-950 border border-white/15 relative">
+        <!-- Mock Titlebar -->
+        <div class="h-10 bg-zinc-950/90 border-b border-white/10 px-4 flex items-center justify-between select-none">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1.5">
+              <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+              <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+            </div>
+            <div class="flex items-center gap-2 pl-3 border-l border-white/10 text-xs text-zinc-300">
+              <span class="font-bold text-white">StudyFlow</span>
+              <span class="text-zinc-500">|</span>
+              <span class="text-emerald-400 font-mono flex items-center gap-1 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> AutoSave: ON</span>
+            </div>
+          </div>
+          <div class="text-[11px] text-zinc-400 font-mono">Lecture_04_Cardiovascular_Pharmacology.pdf • Slide 18/42</div>
+        </div>
+        
+        <!-- App Image Preview -->
+        <img src="assets/preview-screen.png" alt="StudyFlow Application Screenshot" class="w-full h-auto object-cover border-t border-white/5" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Demo Showcase Section -->
+  <section id="demo" class="relative z-10 py-20 px-6 lg:px-12 max-w-6xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <span class="text-xs font-mono uppercase tracking-widest text-blue-400 font-semibold">Live Interactive Simulator</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-2">Try the Quiz Customizer Right Here</h2>
+      <p class="text-sm sm:text-base text-zinc-400 mt-3">Experience the freedom of selecting exact question counts, slide ranges, formats, and timer pacing before launching StudyFlow.</p>
+    </div>
+
+    <!-- Live Interactive Quiz Simulator Widget -->
+    <div class="glass-card rounded-3xl p-6 sm:p-8 max-w-3xl mx-auto border border-white/15 shadow-2xl space-y-6">
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">Q</div>
+          <div>
+            <div class="text-sm font-bold text-white">Interactive Quiz Engine Simulator</div>
+            <div class="text-xs text-zinc-400">Drag sliders and toggle formats dynamically</div>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs font-mono font-medium">Live Demo</span>
+      </div>
+
+      <!-- Live Slider -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-semibold text-zinc-300">Question Count (1 to 100):</label>
+          <span id="demo-count-badge" class="px-2.5 py-0.5 rounded-lg bg-blue-600/30 text-blue-300 font-mono text-sm font-bold border border-blue-500/40">15 Questions</span>
+        </div>
+        <input id="demo-slider" type="range" min="1" max="100" value="15" class="w-full accent-blue-500 cursor-pointer h-2 bg-zinc-800 rounded-lg appearance-none" />
+        <div class="flex justify-between text-[11px] text-zinc-500 font-mono">
+          <span>1 Quick Drill</span>
+          <span>25 Exam Block</span>
+          <span>50 Midterm</span>
+          <span>100 Full Exam</span>
+        </div>
+      </div>
+
+      <!-- Scope Selector -->
+      <div class="space-y-2">
+        <label class="text-xs font-semibold text-zinc-300">Slide Coverage Scope:</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button id="scope-doc" onclick="setScope('doc')" class="py-2 px-3 rounded-xl border border-blue-500 bg-blue-600/20 text-blue-200 text-xs font-medium text-center transition-all">
+            Full PDF (42 Slides)
+          </button>
+          <button id="scope-slide" onclick="setScope('slide')" class="py-2 px-3 rounded-xl border border-zinc-700 bg-zinc-800/50 text-zinc-400 text-xs font-medium text-center transition-all">
+            Current Slide Only
+          </button>
+          <button id="scope-range" onclick="setScope('range')" class="py-2 px-3 rounded-xl border border-zinc-700 bg-zinc-800/50 text-zinc-400 text-xs font-medium text-center transition-all">
+            Custom Range (10-25)
+          </button>
+        </div>
+      </div>
+
+      <!-- Format Toggles -->
+      <div class="space-y-2">
+        <label class="text-xs font-semibold text-zinc-300">Target Question Formats:</label>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <div class="p-2.5 rounded-xl border border-blue-500/60 bg-blue-500/10 text-blue-300 flex items-center justify-between font-medium">
+            <span>MCQ (4 choices)</span>
+            <span>✓</span>
+          </div>
+          <div class="p-2.5 rounded-xl border border-purple-500/60 bg-purple-500/10 text-purple-300 flex items-center justify-between font-medium">
+            <span>True / False</span>
+            <span>✓</span>
+          </div>
+          <div class="p-2.5 rounded-xl border border-amber-500/60 bg-amber-500/10 text-amber-300 flex items-center justify-between font-medium">
+            <span>Case Scenarios</span>
+            <span>✓</span>
+          </div>
+          <div class="p-2.5 rounded-xl border border-emerald-500/60 bg-emerald-500/10 text-emerald-300 flex items-center justify-between font-medium">
+            <span>Exam Traps</span>
+            <span>✓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Computed Exam Pace -->
+      <div class="p-3.5 rounded-2xl bg-zinc-950/70 border border-white/10 flex items-center justify-between">
+        <div>
+          <div class="text-xs font-semibold text-white">Estimated Examination Duration</div>
+          <div id="demo-pace-text" class="text-xs text-zinc-400">15 minutes @ standard USMLE/Board pace (1 min/q)</div>
+        </div>
+        <a href="#download" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20">
+          Run in App
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bento Grid Features Section -->
+  <section id="features" class="relative z-10 py-20 px-6 lg:px-12 max-w-7xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <span class="text-xs font-mono uppercase tracking-widest text-indigo-400 font-semibold">Engineered For Mastery</span>
+      <h2 class="text-3xl sm:text-5xl font-extrabold text-white mt-2">Why Top Students Choose StudyFlow</h2>
+      <p class="text-sm sm:text-base text-zinc-400 mt-3">Ordinary PDF readers waste screen space and leave you passive. StudyFlow converts static materials into active university examination drills.</p>
+    </div>
+
+    <!-- Bento Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Bento 1: Zero-Waste Presentation -->
+      <div class="glass-card rounded-3xl p-8 transition-all flex flex-col justify-between group md:col-span-2">
+        <div>
+          <div class="w-10 h-10 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold mb-5 border border-blue-500/30">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">Zero-Waste Presentation Mode</h3>
+          <p class="text-sm text-zinc-400 leading-relaxed">
+            Eliminates all letterbox borders and wasted dark gaps. Slides dynamically scale to 100% of your screen width and height. Perfect for split-screening with textbooks or presenting on projectors.
+          </p>
+        </div>
+        <div class="mt-6 p-4 rounded-2xl bg-zinc-950/80 border border-white/10 font-mono text-xs text-blue-300 flex items-center justify-between">
+          <span>Letterboxing Deductions: 0px (Full Canvas)</span>
+          <span class="text-emerald-400 font-bold">100% Usable Screen</span>
+        </div>
+      </div>
+
+      <!-- Bento 2: PowerPoint-Style AutoSave -->
+      <div id="autosave" class="glass-card rounded-3xl p-8 transition-all flex flex-col justify-between group">
+        <div>
+          <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold mb-5 border border-emerald-500/30">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">PowerPoint-Style AutoSave</h3>
+          <p class="text-sm text-zinc-400 leading-relaxed">
+            Instant real-time persistence. Every highlight, active note, tab switch, and slide coordinate is safely committed. Sudden power loss will never lose your place.
+          </p>
+        </div>
+        <div class="mt-6 flex items-center gap-2 text-xs font-mono text-emerald-400">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span>Real-time local snapshotting</span>
+        </div>
+      </div>
+
+      <!-- Bento 3: Spaced Repetition Flashcards -->
+      <div class="glass-card rounded-3xl p-8 transition-all flex flex-col justify-between group">
+        <div>
+          <div class="w-10 h-10 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold mb-5 border border-purple-500/30">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">Flashcard Synthesizer</h3>
+          <p class="text-sm text-zinc-400 leading-relaxed">
+            Auto-extract key definitions, anatomical formulas, and clinical pearls into interactive flip decks with SM-2 spaced repetition ratings.
+          </p>
+        </div>
+        <div class="mt-6 text-xs text-purple-300 font-mono">
+          Ratings: Again • Hard • Good • Easy
+        </div>
+      </div>
+
+      <!-- Bento 4: Windows 11 Native Integration -->
+      <div class="glass-card rounded-3xl p-8 transition-all flex flex-col justify-between group md:col-span-2">
+        <div>
+          <div class="w-10 h-10 rounded-2xl bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold mb-5 border border-sky-500/30">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">Native Windows 11 Snap & Frameless Glass</h3>
+          <p class="text-sm text-zinc-400 leading-relaxed">
+            Built with modern Windows titlebar overlay. Drag effortlessly from the header, hover over the maximize icon for native Windows Snap Layouts, and enjoy safe exit confirmation prompts.
+          </p>
+        </div>
+        <div class="mt-6 grid grid-cols-3 gap-2 text-xs font-mono text-zinc-400">
+          <div class="p-2 rounded-xl bg-black/40 border border-white/5 text-center">Windows Snap Layouts</div>
+          <div class="p-2 rounded-xl bg-black/40 border border-white/5 text-center">Maximized on Launch</div>
+          <div class="p-2 rounded-xl bg-black/40 border border-white/5 text-center">Accidental Exit Guard</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive 3D Flashcard Section -->
+  <section class="relative z-10 py-16 px-6 max-w-4xl mx-auto text-center">
+    <div class="mb-8">
+      <span class="text-xs font-mono uppercase tracking-widest text-purple-400 font-semibold">Active Recall Drill</span>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Interactive Flashcard Flip Demo</h2>
+      <p class="text-xs text-zinc-400 mt-1">Click the card below to reveal the answer</p>
+    </div>
+
+    <div class="perspective max-w-lg mx-auto h-56 cursor-pointer" onclick="toggleCard()">
+      <div id="demo-flip-card" class="relative w-full h-full transform-style-3d transition-transform duration-500 shadow-2xl rounded-3xl">
+        <!-- Front -->
+        <div class="absolute inset-0 backface-hidden glass-card rounded-3xl p-6 flex flex-col justify-between text-left border border-purple-500/30 bg-zinc-900/90">
+          <div class="flex items-center justify-between text-xs text-purple-400 font-mono">
+            <span>Card #1 • Pharmacology</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20">Click to flip</span>
+          </div>
+          <div class="text-base font-bold text-white">
+            What is the mechanism of action of ACE inhibitors, and what is the primary adverse effect caused by bradykinin accumulation?
+          </div>
+          <div class="text-xs text-zinc-500">Tap anywhere to test your recall</div>
+        </div>
+
+        <!-- Back -->
+        <div class="absolute inset-0 backface-hidden rotate-y-180 glass-card rounded-3xl p-6 flex flex-col justify-between text-left border border-emerald-500/30 bg-zinc-950/95">
+          <div class="flex items-center justify-between text-xs text-emerald-400 font-mono">
+            <span>Answer Revealed</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20">SM-2 Spaced Repetition</span>
+          </div>
+          <div class="text-sm text-zinc-200 leading-relaxed">
+            <strong class="text-white">Mechanism:</strong> Inhibits Angiotensin-Converting Enzyme, preventing conversion of Angiotensin I to Angiotensin II.<br>
+            <strong class="text-emerald-300">Adverse Effect:</strong> Persistent dry non-productive cough and angioedema due to elevated bradykinin levels.
+          </div>
+          <div class="flex items-center gap-2 pt-2 border-t border-white/10 text-[10px] text-zinc-400 font-mono">
+            <span>Rating buttons:</span>
+            <span class="text-rose-400">Again</span> • <span class="text-amber-400">Hard</span> • <span class="text-blue-400">Good</span> • <span class="text-emerald-400">Easy</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download & Verification Section -->
+  <section class="relative z-10 py-20 px-6 lg:px-12 max-w-5xl mx-auto text-center border-t border-white/10">
+    <h2 class="text-3xl sm:text-5xl font-extrabold text-white mb-4">Start Studying with Superpowers</h2>
+    <p class="text-base text-zinc-400 max-w-2xl mx-auto mb-10">Download StudyFlow today for Windows. 100% free, privacy-first, and built for academic champions.</p>
+
+    <div class="p-8 rounded-3xl glass-card border border-white/15 max-w-2xl mx-auto space-y-6">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-white/10 pb-6 text-left">
+        <div>
+          <div class="text-base font-bold text-white flex items-center gap-2">
+            <span>StudyFlow-v0.1.0-Windows-Setup.exe</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-mono">Recommended</span>
+          </div>
+          <div class="text-xs text-zinc-400 mt-1">Full 1-click Windows installer with desktop icon & auto-associations</div>
+        </div>
+        <a href="https://github.com/Ahmed5422/studyflowapp/releases/download/v0.1.0/StudyFlow-v0.1.0-Windows-Setup.exe" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30 flex items-center gap-2 flex-shrink-0">
+          <span>Download Installer</span>
+        </a>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-left">
+        <div>
+          <div class="text-base font-bold text-white">StudyFlow-v0.1.0-Windows-Portable.zip</div>
+          <div class="text-xs text-zinc-400 mt-1">Self-contained portable folder. Run without administrator rights.</div>
+        </div>
+        <a href="https://github.com/Ahmed5422/studyflowapp/releases/download/v0.1.0/StudyFlow-v0.1.0-Windows-Portable.zip" class="px-5 py-2.5 rounded-xl glass-card hover:bg-white/10 text-zinc-300 hover:text-white font-semibold text-xs border border-white/10 flex items-center gap-2 flex-shrink-0">
+          <span>Download ZIP</span>
+        </a>
+      </div>
+
+      <div class="pt-4 border-t border-white/10 text-left text-xs font-mono text-zinc-400 space-y-1">
+        <div class="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold">Verification SHA256:</div>
+        <div class="p-2 rounded-lg bg-black/60 border border-white/5 break-all text-[11px] text-zinc-300">
+          e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="relative z-10 border-t border-white/10 py-10 px-6 lg:px-12 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
+    <div class="flex items-center gap-2">
+      <img src="assets/icon.png" alt="StudyFlow" class="w-5 h-5 object-contain" />
+      <span class="text-zinc-400 font-semibold">StudyFlow</span>
+      <span>•</span>
+      <span>Created & Developed by <a href="https://github.com/Ahmed5422" target="_blank" class="text-blue-400 hover:underline">Ahmed Elsersawy</a></span>
+    </div>
+    
+    <div class="flex items-center gap-6">
+      <a href="https://github.com/Ahmed5422/studyflowapp" target="_blank" class="hover:text-zinc-300 transition-colors">GitHub Repository</a>
+      <a href="https://github.com/Ahmed5422/studyflowapp/releases" target="_blank" class="hover:text-zinc-300 transition-colors">All Releases</a>
+      <a href="https://github.com/Ahmed5422/studyflow/blob/main/LICENSE" target="_blank" class="hover:text-zinc-300 transition-colors">License (MIT)</a>
+    </div>
+  </footer>
+
+  <!-- Interactive Demo Script -->
+  <script>
+    const slider = document.getElementById('demo-slider');
+    const badge = document.getElementById('demo-count-badge');
+    const paceText = document.getElementById('demo-pace-text');
+
+    if (slider) {
+      slider.addEventListener('input', (e) => {
+        const count = e.target.value;
+        badge.innerText = `${count} Questions`;
+        paceText.innerText = `${count} minutes @ standard board exam pace (1 min/q)`;
+      });
+    }
+
+    function setScope(type) {
+      const docBtn = document.getElementById('scope-doc');
+      const slideBtn = document.getElementById('scope-slide');
+      const rangeBtn = document.getElementById('scope-range');
+
+      [docBtn, slideBtn, rangeBtn].forEach(btn => {
+        btn.className = "py-2 px-3 rounded-xl border border-zinc-700 bg-zinc-800/50 text-zinc-400 text-xs font-medium text-center transition-all";
+      });
+
+      if (type === 'doc') {
+        docBtn.className = "py-2 px-3 rounded-xl border border-blue-500 bg-blue-600/20 text-blue-200 text-xs font-medium text-center transition-all";
+      } else if (type === 'slide') {
+        slideBtn.className = "py-2 px-3 rounded-xl border border-blue-500 bg-blue-600/20 text-blue-200 text-xs font-medium text-center transition-all";
+      } else {
+        rangeBtn.className = "py-2 px-3 rounded-xl border border-blue-500 bg-blue-600/20 text-blue-200 text-xs font-medium text-center transition-all";
+      }
+    }
+
+    let isFlipped = false;
+    function toggleCard() {
+      const card = document.getElementById('demo-flip-card');
+      isFlipped = !isFlipped;
+      if (isFlipped) {
+        card.classList.add('rotate-y-180');
+      } else {
+        card.classList.remove('rotate-y-180');
+      }
+    }
+  </script>
+</body>
+</html>
