@@ -70,7 +70,7 @@ Get-FileHash -Algorithm SHA256 .\StudyFlow-v0.1.0-Windows-Setup.exe
 
 ## 👨‍💻 Created & Developed By
 
-**LLmDash**  
+**Codocrest**  
 - Main Codebase: [StudyFlow Repository](https://github.com/Ahmed5422/studyflow)  
 - Official Landing Page: [StudyFlow App Repository](https://github.com/Ahmed5422/studyflowapp)
 
